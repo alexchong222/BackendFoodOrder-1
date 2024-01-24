@@ -8,7 +8,7 @@
     "environment"    : "BackendFoodOrder-prod",
     "enable-xray"    : false,
     "enhanced-health-type" : "basic",
-    "additional-options"   : "\"aws:autoscaling:launchconfiguration,SecurityGroups\"=\"sg-0f0ae43d522f7a3dd\";\"aws:ec2:vpc,Subnets\"=\"subnet-08012d13fd8c16875\"",
+    "additional-options"   : "",
     "solution-stack"       : "64bit Amazon Linux 2 v2.6.3 running .NET Core",
     "environment-type"     : "SingleInstance",
     "cname"                : "backendfoodorder-prod",

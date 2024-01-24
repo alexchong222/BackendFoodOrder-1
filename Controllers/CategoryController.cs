@@ -22,7 +22,7 @@ namespace BackendFoodOrder.Controllers
             return await _context.Categories.ToListAsync();
         }
 
-        // GET: api/Categories
+        // GET: api/Categories/catnameonly
         [HttpGet("catnameonly")]
         public async Task<ActionResult<IEnumerable<object>>> GetCategoryNames()
         {
@@ -90,6 +90,7 @@ namespace BackendFoodOrder.Controllers
         }
 
         // DELETE: api/Categories/5
+        // THIS WILL DELETE THE PRODUCT ALSO
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategories(int id)
         {
@@ -99,10 +100,10 @@ namespace BackendFoodOrder.Controllers
                 return NotFound();
             }
 
-            var tasksWithSameProducts = _context.Products.Where(p => p.Category == categories.Name);
+            var productWithSameProducts = _context.Products.Where(p => p.Category == categories.Name);
 
-            // Remove tasks with the same category name
-            _context.Products.RemoveRange(tasksWithSameProducts);
+            // Remove product with the same category name
+            _context.Products.RemoveRange(productWithSameProducts);
 
             _context.Categories.Remove(categories);
             await _context.SaveChangesAsync();
