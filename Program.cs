@@ -1,5 +1,17 @@
+
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://example.com",
+                "https://localhost:19006",
+                                "http://backendfoodorder-prod.us-east-1.elasticbeanstalk.com");
+        });
+});
 // Add services to the container.
 builder.Services.AddDbContext<BackendFoodOrder.Models.FoodOrderContext>();
 
@@ -16,6 +28,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 

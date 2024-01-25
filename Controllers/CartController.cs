@@ -51,7 +51,7 @@ namespace BackendFoodOrder.Controllers
         // PUT: api/Cart/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCart(int id, Cart cart)
+        public async Task<ActionResult<Cart>> PutCart(int id, Cart cart)
         {
             if (id != cart.CartId)
             {
@@ -76,7 +76,7 @@ namespace BackendFoodOrder.Controllers
                 }
             }
 
-            return NoContent();
+            return cart;
         }
 
         // POST: api/Cart/{productid}/{userid}

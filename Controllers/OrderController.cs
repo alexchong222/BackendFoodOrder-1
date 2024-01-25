@@ -15,14 +15,14 @@ namespace BackendFoodOrder.Controllers
             _context = context;
         }
 
-        // GET: api/Users
+        // GET: api/Order
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
             return await _context.Orders.ToListAsync();
         }
 
-        // GET: api/Users/5
+        // GET: api/Order/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
@@ -36,21 +36,31 @@ namespace BackendFoodOrder.Controllers
             return order;
         }
 
-        // PUT: api/Users/5
+        // PUT: api/Order/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+        public async Task<ActionResult<Order>> PutOrder(int id, Order updatedOrder)
         {
-            if (id != order.OrderId)
+            if (id != updatedOrder.OrderId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(order).State = EntityState.Modified;
-
             try
             {
+                // Retrieve the existing order from the database
+                var existingOrder = await _context.Orders.FindAsync(id);
+
+                if (existingOrder == null)
+                {
+                    return NotFound();
+                }
+
+                existingOrder.Ratings = updatedOrder.Ratings;
+                _context.Entry(existingOrder).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                return existingOrder;
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -63,23 +73,145 @@ namespace BackendFoodOrder.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
-        // POST: api/Users
+        // PUT: api/Order/Complete/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("Complete/{id}")]
+        public async Task<ActionResult<Order>> PutOrderComplete(int id, Order updatedOrder)
+        {
+            if (id != updatedOrder.OrderId)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                // Retrieve the existing order from the database
+                var existingOrder = await _context.Orders.FindAsync(id);
+
+                if (existingOrder == null)
+                {
+                    return NotFound();
+                }
+
+                // Update only the specific properties you want to modify
+                existingOrder.OrderStatus = "Completed";
+                existingOrder.DeliveryStatus = "Delivered";
+
+                // Mark the entity as modified and save changes
+                _context.Entry(existingOrder).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return existingOrder;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OrderExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        // PUT: api/Order/Cancel/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("Cancel/{id}")]
+        public async Task<ActionResult<Order>> PutOrderCancel(int id, Order updatedOrder)
+        {
+            if (id != updatedOrder.OrderId)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                // Retrieve the existing order from the database
+                var existingOrder = await _context.Orders.FindAsync(id);
+
+                if (existingOrder == null)
+                {
+                    return NotFound();
+                }
+
+                // Update only the specific properties you want to modify
+                existingOrder.OrderStatus = "Cancelled";
+                existingOrder.DeliveryStatus = "Cancelled";
+
+                // Mark the entity as modified and save changes
+                _context.Entry(existingOrder).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return existingOrder;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OrderExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+
+        // POST: api/Order
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder(Order order, int userid, string totalamount)
         {
+            // Set properties for the Order object based on the provided parameters and default values.
+            order.UserId = userid;
+            order.TotalAmount = totalamount;
+            order.OrderStatus = "Pending";
+            order.DeliveryStatus = "Pending";
+            order.Ratings = "Not given yet";
             order.DTAdded = DateTime.Today.ToString("MM-dd-yyyy");
             _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            // Retrieve data from the Cart table for the given user ID.
+            var cartItems = _context.Carts.Where(c => c.UserId == userid).ToList();
+
+            // Populate the OrderDetails table with data from the Cart table.
+            foreach (var cartItem in cartItems)
+            {
+                if (int.TryParse(cartItem.Quantity, out int quantity) && decimal.TryParse(cartItem.Price, out decimal price))
+                {
+                    var orderDetail = new OrderDetails
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = cartItem.ProductId,
+                        Quantity = quantity.ToString(),
+                        Price = price.ToString(),
+                        TotalAmount = (quantity * price).ToString(),
+                        DTAdded = DateTime.Today.ToString("MM-dd-yyyy")
+                };
+                    _context.OrderDetails.Add(orderDetail);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            var userCartItems = _context.Carts.Where(c => c.UserId == userid);
+            _context.Carts.RemoveRange(userCartItems);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
         }
 
-        // DELETE: api/Users/5
+
+        // DELETE: api/Order/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
