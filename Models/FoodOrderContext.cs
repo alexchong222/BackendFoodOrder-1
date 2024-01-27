@@ -21,6 +21,7 @@ namespace BackendFoodOrder.Models
         public virtual DbSet<Cart> Carts { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<OrderDetails> OrderDetails { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
@@ -69,9 +70,15 @@ namespace BackendFoodOrder.Models
             {
                 entity.ToTable("Order");
 
-                entity.Property(e => e.OrderId).HasColumnName("OrderId");
-
                 entity.Property(e => e.UserId).HasColumnName("UserId");
+
+            });
+
+            modelBuilder.Entity<OrderDetails>(entity =>
+            {
+                entity.ToTable("OrderDetails");
+
+                entity.Property(e => e.OrderId).HasColumnName("OrderId");
 
                 entity.Property(e => e.ProductId).HasColumnName("ProductId");
 
@@ -86,12 +93,12 @@ namespace BackendFoodOrder.Models
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .HasColumnName("taskName");
+                    .HasColumnName("productName");
 
                 entity.Property(e => e.Desc)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .HasColumnName("taskDesc");
+                    .HasColumnName("productDesc");
 
                 entity.Property(e => e.Price).HasColumnName("price");
 

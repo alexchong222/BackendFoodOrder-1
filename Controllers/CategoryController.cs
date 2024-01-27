@@ -15,14 +15,14 @@ namespace BackendFoodOrder.Controllers
             _context = context;
         }
 
-        // GET: api/Categories
+        // GET: api/Category
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
             return await _context.Categories.ToListAsync();
         }
 
-        // GET: api/Categories
+        // GET: api/Category/catnameonly
         [HttpGet("catnameonly")]
         public async Task<ActionResult<IEnumerable<object>>> GetCategoryNames()
         {
@@ -33,7 +33,7 @@ namespace BackendFoodOrder.Controllers
             return categoryNames;
         }
 
-        // GET: api/Categories/5
+        // GET: api/Category/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategories(int id)
         {
@@ -47,10 +47,10 @@ namespace BackendFoodOrder.Controllers
             return categories;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Category/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> GetCategories(int id, Category categories)
+        public async Task<ActionResult<Category>> GetCategories(int id, Category categories)
         {
             if (id != categories.CategoryId)
             {
@@ -75,10 +75,10 @@ namespace BackendFoodOrder.Controllers
                 }
             }
 
-            return NoContent();
+            return categories;
         }
 
-        // POST: api/Categories
+        // POST: api/Category
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategories(Category categories)
@@ -89,7 +89,8 @@ namespace BackendFoodOrder.Controllers
             return CreatedAtAction("PostCategories", new { id = categories.CategoryId }, categories);
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/Category/5
+        // THIS WILL DELETE THE PRODUCT ALSO
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategories(int id)
         {
@@ -99,10 +100,10 @@ namespace BackendFoodOrder.Controllers
                 return NotFound();
             }
 
-            var tasksWithSameProducts = _context.Products.Where(p => p.Category == categories.Name);
+            var productWithSameProducts = _context.Products.Where(p => p.Category == categories.Name);
 
-            // Remove tasks with the same category name
-            _context.Products.RemoveRange(tasksWithSameProducts);
+            // Remove product with the same category name
+            _context.Products.RemoveRange(productWithSameProducts);
 
             _context.Categories.Remove(categories);
             await _context.SaveChangesAsync();
