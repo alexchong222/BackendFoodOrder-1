@@ -21,8 +21,8 @@ namespace BackendFoodOrder.Controllers
         {
             return await _context.Users.ToListAsync();
         }
-
-        // GET: api/User/5
+        
+        // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
