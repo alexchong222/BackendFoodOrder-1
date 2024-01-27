@@ -36,6 +36,20 @@ namespace BackendFoodOrder.Controllers
             return order;
         }
 
+        // GET: api/Order/user/5
+        [HttpGet("user/{id}")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrderByUserId(int id)
+        {
+            var order = await _context.Orders.Where(od => od.UserId == id).ToListAsync();
+
+            if (order == null || !order.Any())
+            {
+                return NotFound();
+            }
+
+            return order;
+        }
+
         // PUT: api/Order/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
