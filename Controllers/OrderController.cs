@@ -162,9 +162,9 @@ namespace BackendFoodOrder.Controllers
         }
 
 
-        // POST: api/Order
+        // POST: api/Order/{userid}/{totalamount}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("{userid}/{totalamount}")]
         public async Task<ActionResult<Order>> PostOrder(Order order, int userid, string totalamount)
         {
             // Set properties for the Order object based on the provided parameters and default values.

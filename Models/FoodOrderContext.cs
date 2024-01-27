@@ -93,12 +93,12 @@ namespace BackendFoodOrder.Models
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .HasColumnName("taskName");
+                    .HasColumnName("productName");
 
                 entity.Property(e => e.Desc)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .HasColumnName("taskDesc");
+                    .HasColumnName("productDesc");
 
                 entity.Property(e => e.Price).HasColumnName("price");
 
