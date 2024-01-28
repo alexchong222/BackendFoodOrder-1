@@ -93,15 +93,23 @@ namespace BackendFoodOrder.Controllers
                 // Update quantity if the product is already in the cart
                 if (int.TryParse(cart.Quantity, out int newQuantity) && int.TryParse(cart.Price, out int price))
                 {
-                    existingCartItem.Quantity = newQuantity.ToString();
-                    existingCartItem.Price = price.ToString();
-                    existingCartItem.TotalAmount = (price * newQuantity).ToString();
-                    await _context.SaveChangesAsync();
-                    return CreatedAtAction("GetCart", new { id = existingCartItem.CartId }, existingCartItem);
+                    int currentQuantity;
+                    if (int.TryParse(existingCartItem.Quantity, out currentQuantity))
+                    {
+                        existingCartItem.Quantity = (currentQuantity + newQuantity).ToString();
+                        existingCartItem.Price = price.ToString();
+                        existingCartItem.TotalAmount = (price * (currentQuantity + newQuantity)).ToString();
+                        await _context.SaveChangesAsync();
+                        return CreatedAtAction("GetCart", new { id = existingCartItem.CartId }, existingCartItem);
+                    }
+                    else
+                    {
+                        return BadRequest("Invalid Quantity format");
+                    }
                 }
                 else
                 {
-                    return BadRequest("Invalid Quantity format");
+                    return BadRequest("Invalid Quantity or Price format");
                 }
             }
             else
